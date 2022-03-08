@@ -3,7 +3,6 @@ import Iter "mo:base/Iter";
 import Int "mo:base/Int";
 import Time "mo:base/Time";
 import Principal "mo:base/Principal";
-// import Debug "mo:base/Debug";
 
 actor {
   public type Message = {
@@ -33,7 +32,6 @@ actor {
  
 
   public shared(msg) func post(text: Text) : async(){
-    //assert(Principal.toText(msg.caller) == "ubtix-jc5ca-34nda-q33zj-ywcse-2dyou-dp7px-nos6x-jbokb-kfggq-nae");
     let message = {
       text = text;
       created_at = Time.now();
@@ -68,8 +66,4 @@ actor {
 
     List.toArray(posts_since)
   };
-
-  //  var lastTime = Time.now();
-  //  Debug.print(Int.toText(lastTime));
-
 };
