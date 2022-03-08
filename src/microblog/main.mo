@@ -33,7 +33,7 @@ actor {
  
 
   public shared(msg) func post(text: Text) : async(){
-    assert(Principal.toText(msg.caller) == "ubtix-jc5ca-34nda-q33zj-ywcse-2dyou-dp7px-nos6x-jbokb-kfggq-nae");
+    //assert(Principal.toText(msg.caller) == "ubtix-jc5ca-34nda-q33zj-ywcse-2dyou-dp7px-nos6x-jbokb-kfggq-nae");
     let message = {
       text = text;
       created_at = Time.now();
