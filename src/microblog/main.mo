@@ -4,7 +4,7 @@ import Int "mo:base/Int";
 import Time "mo:base/Time";
 import Principal "mo:base/Principal";
 
-actor {
+actor Mblog {
   public type Message = {
     text: Text;
     created_at : Int;
@@ -14,8 +14,8 @@ actor {
     follow: shared(Principal) -> async();
     follows: shared query() -> async[Principal];
     post: shared(Text) -> async();
-    posts: shared query() -> async[Message];
-    timeline: shared() -> async[Message];
+    posts: shared query(Time.Time) -> async[Message];
+    timeline: shared(Time.Time) -> async[Message];
   };
 
   stable var followed : List.List<Principal> = List.nil(); //empty list
@@ -30,8 +30,8 @@ actor {
 
   stable var messages : List.List<Message> = List.nil();
  
-
   public shared(msg) func post(text: Text) : async(){
+    assert(Principal.toText(msg.caller) == getPrincipal()); // check principal
     let message = {
       text = text;
       created_at = Time.now();
@@ -40,30 +40,33 @@ actor {
   };
   
   public shared query func posts(since: Time.Time) : async [Message]{
-    var posts_since : List.List<Message> = List.nil();
+    var posts : List.List<Message> = List.nil();
 
     for (msg in Iter.fromList(messages)){
-      if (msg.created_at > since) {
-        posts_since := List.push(msg, posts_since);
+      if (msg.created_at >= since) { //filter since
+        posts := List.push(msg, posts);
       }
     };
 
-    List.toArray(posts_since)
+    List.toArray(posts)
   };
 
   public shared func timeline(since: Time.Time) : async [Message]{
-    var posts_since : List.List<Message> = List.nil();
+    var all : List.List<Message> = List.nil();
 
     for (id in Iter.fromList(followed)){
       let canister : Microblog = actor(Principal.toText(id));
-      let msgs = await canister.posts();
+      let msgs = await canister.posts(since); //msgs since
       for (msg in Iter.fromArray(msgs)){
-          if (msg.created_at > since) {
-            posts_since := List.push(msg, posts_since);
-          }
+        all := List.push(msg, all)
       }
     };
 
-    List.toArray(posts_since)
+    List.toArray(all)
   };
+
+  public shared func getPrincipal(){
+    let a = Principal.fromActor(Mblog)
+  }
+
 };
